@@ -1,5 +1,7 @@
 package com.ecomemerce.project.service;
 
+import com.ecomemerce.project.exception.APIException;
+import com.ecomemerce.project.exception.ResourceNotFoundException;
 import com.ecomemerce.project.model.Category;
 import com.ecomemerce.project.repository.CategoryRepository;
 import org.aspectj.weaver.patterns.TypeCategoryTypePattern;
@@ -15,7 +17,6 @@ import java.util.Optional;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    //private List<Category> categories = new ArrayList<>();
     private long nextCategoryId = 1L;
 
     @Autowired
@@ -23,7 +24,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void addCategory(Category category) {
-//        category.setCategoryId(nextCategoryId++);
+        Category savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
+        if (savedCategory != null) {
+            throw new APIException("Category already exists");
+        }
        categoryRepository.save(category);
     }
 
@@ -34,16 +38,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public String deleteCategory(Long categoryId) {
-
-//        categoryRepository.deleteById(categoryId);
-//        List<Category> categories = categoryRepository.findAll();
-//        Category  category = categories.stream()
-//                .filter(c-> c.getCategoryId() == categoryId)
-//                .findFirst().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category with ID " + categoryId + " not found"));
         Optional<Category> savedCategory = categoryRepository.findById(categoryId);
-
         Category foundCategory = savedCategory
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
         categoryRepository.delete(foundCategory);
         return "Category deleted";
@@ -51,15 +48,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category updateCategory(Long categoryId, Category category) {
-//        List<Category> categories = categoryRepository.findAll();
-//        Category  foundCategory = categories.stream()
-//                .filter(c-> c.getCategoryId() == categoryId)
-//                .findFirst().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category with ID " + categoryId + " not found"));
-//        foundCategory.setCategoryName(category.getCategoryName());
         Optional<Category> savedCategory = categoryRepository.findById(categoryId);
 
         Category foundCategory = savedCategory
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
         foundCategory.setCategoryName(category.getCategoryName());
         return categoryRepository.save(foundCategory);
