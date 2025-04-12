@@ -1,6 +1,7 @@
 package com.ecomemerce.project.service;
 
 import com.ecomemerce.project.exception.APIException;
+import com.ecomemerce.project.exception.EmptyListException;
 import com.ecomemerce.project.exception.ResourceNotFoundException;
 import com.ecomemerce.project.model.Category;
 import com.ecomemerce.project.repository.CategoryRepository;
@@ -33,7 +34,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> getCategories() {
-        return categoryRepository.findAll();
+        List<Category> categories= categoryRepository.findAll();
+        if (categories.isEmpty()) {
+            throw new APIException("No categories found");
+        }
+        return categories;
     }
 
     @Override

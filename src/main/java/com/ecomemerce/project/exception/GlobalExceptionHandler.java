@@ -38,4 +38,10 @@ public class GlobalExceptionHandler{
         return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(EmptyListException.class)
+    public ResponseEntity<String> emptyListException(EmptyListException e) {
+        String message = e.getMessage();
+        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+    }
+
 }
