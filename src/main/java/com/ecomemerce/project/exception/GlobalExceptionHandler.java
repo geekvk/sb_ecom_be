@@ -1,5 +1,6 @@
 package com.ecomemerce.project.exception;
 
+import com.ecomemerce.project.payload.APIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -14,6 +15,9 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler{
 
+    public GlobalExceptionHandler() {
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> methodArgumentNotValidException(MethodArgumentNotValidException exception) {
         Map<String, String> response = new HashMap<>();
@@ -27,21 +31,24 @@ public class GlobalExceptionHandler{
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> resourceNotFoundException(ResourceNotFoundException e) {
+    public ResponseEntity<APIResponse> resourceNotFoundException(ResourceNotFoundException e) {
         String message = e.getMessage();
-        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        APIResponse response = new APIResponse(message, false);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(APIException.class)
-    public ResponseEntity<String> apiException(APIException e) {
+    public ResponseEntity<APIResponse> apiException(APIException e) {
         String message = e.getMessage();
-        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        APIResponse response = new APIResponse(message, false);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(EmptyListException.class)
-    public ResponseEntity<String> emptyListException(EmptyListException e) {
+    public ResponseEntity<APIResponse> emptyListException(EmptyListException e) {
         String message = e.getMessage();
-        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        APIResponse response = new APIResponse(message, false);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
 }

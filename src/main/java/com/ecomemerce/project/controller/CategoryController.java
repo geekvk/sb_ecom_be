@@ -1,56 +1,77 @@
 package com.ecomemerce.project.controller;
 
 
-import com.ecomemerce.project.model.Category;
+import com.ecomemerce.project.config.AppConstants;
+import com.ecomemerce.project.payload.CategoryDto;
+import com.ecomemerce.project.payload.CategoryResponse;
 import com.ecomemerce.project.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/")
 public class CategoryController {
+    private final HttpMessageConverters messageConverters;
     private CategoryService categoryService;
+
+    /*
+        http://localhost:8080/api/echo?message="hi"
+     */
+//    @GetMapping("echo")
+//    public ResponseEntity<String> echoMessage(@RequestParam(name = "message", required = false) String message) {
+////    public ResponseEntity<String> echoMessage(@RequestParam(name = "message",  defaultValue = "Hello world") String message) {
+//        return new ResponseEntity<>("Echoed Message " + message, HttpStatus.OK);
+//    }
+
 
 
     @Autowired
-    public CategoryController(CategoryService categoryService) {
+    public CategoryController(CategoryService categoryService, HttpMessageConverters messageConverters) {
         this.categoryService = categoryService;
+        this.messageConverters = messageConverters;
     }
 
     @GetMapping("public/categories")
-    public ResponseEntity<List<Category>> getCategories() {
-        List<Category> categories = categoryService.getCategories();
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+    public ResponseEntity<CategoryResponse> getCategories(
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_CATEGORY_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_CATEGORY_ORDER, required = false) String sortOrder
+            ) {
+        CategoryResponse categoryResponse = categoryService.getCategories(
+                pageNumber,
+                pageSize,
+                sortBy,
+                sortOrder
+        );
+        return new ResponseEntity<>(categoryResponse, HttpStatus.OK);
     }
 
     @PostMapping("admin/category")
-    public ResponseEntity<String> setCategories(@Valid @RequestBody Category category) {
+    public ResponseEntity<CategoryDto> setCategories(@Valid @RequestBody CategoryDto categoryDto) {
         /*
             @Valid for getting user friendy response. without adding @valid entity valid fild without adding data shows 500 errrr. now its 400 bad request
          */
-        categoryService.addCategory(category);
-        return new ResponseEntity<>("added successfully", HttpStatus.CREATED);
+        CategoryDto savedCategoryDto =  categoryService.createCategory(categoryDto);
+        return new ResponseEntity<>(savedCategoryDto, HttpStatus.CREATED);
     }
     @DeleteMapping("admin/category/{categoryId}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
-        String status = categoryService.deleteCategory(categoryId);
-        return new ResponseEntity<>(status, HttpStatus.OK);
+    public ResponseEntity<CategoryDto> deleteCategory(@PathVariable Long categoryId) {
+        CategoryDto deletedCategory = categoryService.deleteCategory(categoryId);
+        return new ResponseEntity<>(deletedCategory, HttpStatus.OK);
     }
 
     @PutMapping("admin/category/{categoryId}")
-    public ResponseEntity<String> updateCategory(
+    public ResponseEntity<CategoryDto> updateCategory(
             @PathVariable Long categoryId,
-            @RequestBody Category category
+            @RequestBody CategoryDto categoryDto
     ) {
-       Category updatedCategory = categoryService.updateCategory(categoryId, category);
-       return new ResponseEntity<>(updatedCategory.getCategoryName(), HttpStatus.OK);
+       CategoryDto updatedCategory = categoryService.updateCategory(categoryId, categoryDto);
+       return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
     }
 
 

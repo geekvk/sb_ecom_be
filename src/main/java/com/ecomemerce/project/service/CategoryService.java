@@ -1,14 +1,13 @@
 package com.ecomemerce.project.service;
 
 import com.ecomemerce.project.model.Category;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
+import com.ecomemerce.project.payload.CategoryDto;
+import com.ecomemerce.project.payload.CategoryResponse;
 
 
 public interface CategoryService {
-    void addCategory(Category category);
-    List<Category> getCategories();
-    String deleteCategory(Long categoryId);
-    Category updateCategory(Long categoryId, Category category);
+    CategoryDto createCategory(CategoryDto categoryDto);
+    CategoryResponse getCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+    CategoryDto deleteCategory(Long categoryId);
+    CategoryDto updateCategory(Long categoryId, CategoryDto categoryDto);
 }
