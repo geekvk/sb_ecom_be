@@ -14,6 +14,6 @@ public class CategoryResponse {
     private Integer pageNumber;
     private Integer pageSize;
     private Integer totalPages;
-    private Long totalElements;
+    private long totalElements;
     private boolean isLastPage;
 }
